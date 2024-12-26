@@ -161,6 +161,10 @@ app.post('/appointments', authenticate(['student']), async (req, res) => {
 
 
 
+app.get('/', (req, res) => {
+    res.send('<h1>Hello, World! This is an H1 tag!</h1>');
+  });
+
 
 
 const PORT = process.env.PORT || 3000;
