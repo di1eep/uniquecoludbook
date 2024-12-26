@@ -13,7 +13,7 @@ const App = () => {
     // Authentication Handlers
     const register = async (data) => {
         try {
-            const response = await axios.post('http://localhost:3000/register', data);
+            const response = await axios.post('http://13.127.15.20/register', data);
             alert('User registered successfully');
         } catch (error) {
             alert(error.response?.data || 'Registration failed');
@@ -22,7 +22,7 @@ const App = () => {
 
     const login = async (data) => {
         try {
-            const response = await axios.post('http://localhost:3000/login', data);
+            const response = await axios.post('http://13.127.15.20/login', data);
             setToken(response.data.token);
             setRole(data.role);
         } catch (error) {
@@ -33,7 +33,7 @@ const App = () => {
     // Availability Handlers
     const addAvailability = async (data) => {
         try {
-            await axios.post('http://localhost:3000/availability', data, {
+            await axios.post('http://13.127.15.20/availability', data, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             alert('Availability added');
@@ -44,7 +44,7 @@ const App = () => {
 
     const fetchAvailability = async () => {
         try {
-            const response = await axios.get(`http://localhost:3000/availability/`, {
+            const response = await axios.get(`http://13.127.15.20/availability/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setAvailability(response.data);
@@ -55,7 +55,7 @@ const App = () => {
 
     const bookAppointment = async (data) => {
         try {
-            await axios.post('http://localhost:3000/appointments', data, {
+            await axios.post('http://13.127.15.20/appointments', data, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             alert('Appointment booked');
