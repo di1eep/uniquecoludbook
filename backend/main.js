@@ -82,6 +82,7 @@ const authenticate = (roles) => async (req, res, next) => {
 
 
 
+
 app.post('/register', async (req, res) => {
     const { name, email, password, role } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -131,6 +132,15 @@ app.post('/availability', authenticate(['professor']), async (req, res) => {
 });
 
 
+app.get('/', async (req, res) => {
+    try {
+        res.send("server working");
+    } catch (err) {
+        res.status(400).send(err.message);
+    }
+});
+
+
 app.get('/availability/', authenticate(['student']), async (req, res) => {
     try {
         const availability = await Availability.find(); 
@@ -161,9 +171,7 @@ app.post('/appointments', authenticate(['student']), async (req, res) => {
 
 
 
-app.get('/', (req, res) => {
-    res.send('<h1>Hello, World! This is an H1 tag!</h1>');
-  });
+
 
 
 
