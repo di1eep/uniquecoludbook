@@ -117,19 +117,43 @@ app.post('/login', async (req, res) => {
 
 app.post('/availability', authenticate(['professor']), async (req, res) => {
     const { date, slots } = req.body;
+    const currentDate = new Date().setHours(0, 0, 0, 0);
+    const inputDate = new Date(date).setHours(0, 0, 0, 0);
+    if (inputDate < currentDate + 1 ) {
+        return res.status(400).send('Cannot update availability for past date or today');
+    }
 
     try {
+        const existingAvailability = await Availability.findOne({
+            professorId: req.user._id,
+            date: date,
+        });
+
+        if (existingAvailability) {
+            const updatedSlots = [
+                ...new Set([...existingAvailability.slots, ...slots]),
+            ];
+            if (JSON.stringify(updatedSlots) !== JSON.stringify(existingAvailability.slots)) {
+                existingAvailability.slots = updatedSlots;
+                await existingAvailability.save();
+                return res.status(200).send('Availability updated as the date already exists');
+            } else {
+                return res.status(200).send('No new slots to update');
+            }
+        }
         const availability = new Availability({
             professorId: req.user._id,
             date,
             slots,
         });
+
         await availability.save();
         res.status(201).send('Availability added');
     } catch (err) {
         res.status(400).send(err.message);
     }
 });
+
 
 
 app.get('/', async (req, res) => {
@@ -143,12 +167,13 @@ app.get('/', async (req, res) => {
 
 app.get('/availability/', authenticate(['student']), async (req, res) => {
     try {
-        const availability = await Availability.find(); 
+        const availability = await Availability.find({ slots: { $ne: [] } });
         res.json(availability);
     } catch (err) {
         res.status(400).send(err.message);
     }
 });
+
 
 
 
@@ -190,5 +215,5 @@ app.post('/appointments', authenticate(['student']), async (req, res) => {
 
 
 
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
