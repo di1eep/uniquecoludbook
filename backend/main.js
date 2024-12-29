@@ -156,6 +156,19 @@ app.post('/appointments', authenticate(['student']), async (req, res) => {
     const { professorId, date, time } = req.body;
 
     try {
+        const availability = await Availability.findOne({ professorId, date });
+        if (!availability) {
+            return res.status(404).send('No availability found for the given date');
+        }
+
+        const slotIndex = availability.slots.indexOf(time);
+        if (slotIndex === -1) {
+            return res.status(400).send('Requested time slot is not available');
+        }
+
+        availability.slots.splice(slotIndex, 1);
+        await availability.save();
+
         const appointment = new Appointment({
             studentId: req.user._id,
             professorId,
@@ -163,11 +176,13 @@ app.post('/appointments', authenticate(['student']), async (req, res) => {
             time,
         });
         await appointment.save();
-        res.status(201).send('Appointment booked');
+
+        res.status(201).send('Appointment booked successfully');
     } catch (err) {
         res.status(400).send(err.message);
     }
 });
+
 
 
 
